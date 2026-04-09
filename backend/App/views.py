@@ -239,83 +239,99 @@ def google_login(request):
 @api_view(['GET'])
 def get_enrollments(request):
     """
-    Retrieve all enrollments from the database
+    Retrieve all enrollments, optionally filtered by email
     """
-    # enrollments = Enrollment.objects.all()
-    enrollments = Enrollment.objects.select_related('user').all()  # get all rows
+    email = request.query_params.get('email')
+    
+    if email:
+        enrollments = Enrollment.objects.filter(user__email=email).select_related('user').order_by('-created_at')
+    else:
+        enrollments = Enrollment.objects.select_related('user').all().order_by('-created_at')
+        
     serializer = EnrollmentSerializer(enrollments, many=True)
     return Response({
-        "message": "Enrollments retrieved ✅",
+        "message": f"Enrollments retrieved for {email if email else 'all users'} ✅",
+        "count": len(serializer.data),
         "data": serializer.data
     })
 
 
+import random
+from django.core.cache import cache
+from django.core.mail import send_mail
+from django.conf import settings
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.password_validation import validate_password
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from rest_framework import status
+
 @api_view(['POST'])
 def forgot_password(request):
-    """
-    Handle password reset steps:
-    - action='request': Check email existence
-    - action='reset': Update password for a valid email
-    """
     email = request.data.get('email')
-    action = request.data.get('action') # 'request' or 'reset'
+    action = request.data.get('action')
+    entered_otp = request.data.get('otp')
     new_password = request.data.get('new_password')
 
     if not email:
         return Response({"error": "Email is required"}, status=400)
 
-    # Find the user record
+    # Find user
     user_record = None
-    user_type = None
+    for model in [AdminUser, UserRegister, Student]:
+        user_record = model.objects.filter(email=email).first()
+        if user_record:
+            break
 
-    # Order of check: Admin -> User -> Student
-    admin = AdminUser.objects.filter(email=email).first()
-    if admin:
-        user_record = admin
-        user_type = 'admin'
-    
+    # Always return same message (security)
     if not user_record:
-        user = UserRegister.objects.filter(email=email).first()
-        if user:
-            user_record = user
-            user_type = 'user'
-    
-    if not user_record:
-        student = Student.objects.filter(email=email).first()
-        if student:
-            user_record = student
-            user_type = 'student'
+        return Response({"message": "If email exists, OTP sent"}, status=200)
 
-    if not user_record:
-        return Response({"error": "Email is wrong"}, status=404)
-
-    if action == 'request':
-        # Simulated OTP generation
+    # ---------------- REQUEST OTP ----------------
+    if action == "request":
         otp = str(random.randint(100000, 999999))
-        
-        try:
-            send_mail(
-                subject="Your Password Reset OTP",
-                message=f"Your OTP for password reset is: {otp}\n\nPlease enter this on the website to proceed.",
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[email],
-                fail_silently=False,
-            )
-            return Response({
-                "message": f"Account verified. OTP sent to your email.",
-                "otp": otp, # Still returning for now, but real email was triggered
-                "user_type": user_type
-            }, status=200)
-        except Exception as e:
-            return Response({"error": f"Failed to send email: {str(e)}"}, status=500)
 
-    elif action == 'reset':
-        if not new_password:
-            return Response({"error": "New password is required"}, status=400)
-        
-        user_record.password = new_password
+        # Store OTP (5 mins)
+        cache.set(email, otp, timeout=300)
+
+        send_mail(
+            subject="Password Reset OTP",
+            message=f"Your OTP is {otp}. It expires in 5 minutes.",
+            from_email=settings.EMAIL_HOST_USER,
+            recipient_list=[email],
+        )
+
+        return Response({"message": "OTP sent to email"}, status=200)
+
+    # ---------------- VERIFY OTP ----------------
+    elif action == "verify":
+        stored_otp = cache.get(email)
+
+        if not stored_otp:
+            return Response({"error": "OTP expired"}, status=400)
+
+        if entered_otp != stored_otp:
+            return Response({"error": "Invalid OTP"}, status=400)
+
+        return Response({"message": "OTP verified"}, status=200)
+
+    # ---------------- RESET PASSWORD ----------------
+    elif action == "reset":
+        stored_otp = cache.get(email)
+
+        if not stored_otp:
+            return Response({"error": "Session expired"}, status=400)
+
+        try:
+            validate_password(new_password)
+        except Exception as e:
+            return Response({"error": str(e)}, status=400)
+
+        user_record.password = make_password(new_password)
         user_record.save()
-        return Response({"message": "Password updated successfully ✅"}, status=200)
+
+        cache.delete(email)
+
+        return Response({"message": "Password updated successfully"}, status=200)
 
     return Response({"error": "Invalid action"}, status=400)
-

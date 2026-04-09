@@ -46,13 +46,13 @@ const features = [
 
 const WhyChoose = () => {
   return (
-    <section className="bg-slate-50 py-16 md:py-24">
+    <section id="about" className="bg-slate-50 py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
 
         {/* Title */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
-            Why Choose EduTech
+            Why Choose TX hub
           </h2>
           <div className="h-1 w-20 bg-blue-500 mx-auto mt-6 rounded-full"></div>
         </div>

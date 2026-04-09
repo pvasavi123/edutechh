@@ -98,6 +98,7 @@ const Hero = () => {
 
   return (
     <section
+      id="home"
       className="relative min-h-[90vh] w-full bg-cover bg-center overflow-hidden flex items-start pt-20"
       // style={{ backgroundImage: `url(${heroBg})` }}
       onMouseMove={handleMouseMove}
@@ -139,15 +140,26 @@ const Hero = () => {
 
             {/* FLOATING PLACEMENT CARD */}
             <div className="mt-12 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-500 fill-mode-both">
-              <div className="inline-flex items-center gap-4 bg-white/40 backdrop-blur-md border border-white/30 p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:shadow-blue-500/10 transition-shadow">
-                <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
-                  <Briefcase size={22} />
+
+              <Link to="/internship">
+                <div className="inline-flex items-center gap-4 bg-white/40 backdrop-blur-md border border-white/30 p-4 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] hover:shadow-blue-500/10 transition-shadow cursor-pointer">
+
+                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                    <Briefcase size={22} />
+                  </div>
+
+                  <div>
+                    <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
+                      Post-Training Internships
+                    </h4>
+                    <p className="text-xs text-slate-600 font-semibold max-w-[220px] leading-relaxed">
+                      Secure guaranteed internship & placement support after successful training.
+                    </p>
+                  </div>
+
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-slate-800 uppercase tracking-wider">Post-Training Internships</h4>
-                  <p className="text-xs text-slate-600 font-semibold max-w-[220px] leading-relaxed">Secure guaranteed internship & placement support after successful training.</p>
-                </div>
-              </div>
+              </Link>
+
             </div>
           </div>
         </div>

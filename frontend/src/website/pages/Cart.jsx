@@ -1,8 +1,6 @@
 import React, { useContext } from "react";
 import { CartContext } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { Trash2, ShoppingBag, ArrowRight, ChevronRight } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 
@@ -29,7 +27,6 @@ const CartPage = () => {
 
   return (
     <>
-      <Navbar />
       <div className="min-h-screen bg-slate-50 pt-32 pb-20">
         <div className="max-w-5xl mx-auto px-6">
 
@@ -152,7 +149,6 @@ const CartPage = () => {
           )}
         </div>
       </div>
-      <Footer />
     </>
   );
 };

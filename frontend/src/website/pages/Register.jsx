@@ -1,7 +1,8 @@
 import React, { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { User, Mail, Phone, Lock, ArrowRight, X } from "lucide-react";
+import { User, Mail, Phone, Lock, ArrowRight, X, Eye, EyeOff } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -17,6 +18,8 @@ const Register = () => {
     confirm_password: ""
   });
 
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
   // 🔥 VALIDATION FUNCTION
@@ -25,25 +28,42 @@ const Register = () => {
 
     if (!form.full_name.trim()) {
       newErrors.full_name = "Full name is required";
+    } else if (form.full_name.trim().length < 3) {
+      newErrors.full_name = "Name must be at least 3 characters";
     }
 
-    if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = "Enter valid email";
+    if (!form.email.trim()) {
+      newErrors.email = "Email address is required";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      newErrors.email = "Please enter a valid email address";
     }
 
-    if (!/^\d{10}$/.test(form.phone)) {
-      newErrors.phone = "Enter valid 10-digit phone";
+    if (!form.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[6-9]\d{9}$/.test(form.phone)) {
+      newErrors.phone = "Enter a valid 10-digit mobile number";
     }
 
-    if (form.password.length < 6) {
+    if (!form.password) {
+      newErrors.password = "Password is required";
+    } else if (form.password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
+    } else if (!/(?=.*[0-9])/.test(form.password)) {
+      newErrors.password = "Password must contain at least one number";
     }
 
-    if (form.password !== form.confirm_password) {
+    if (!form.confirm_password) {
+      newErrors.confirm_password = "Confirmation is required";
+    } else if (form.password !== form.confirm_password) {
       newErrors.confirm_password = "Passwords do not match";
     }
 
     setErrors(newErrors);
+    
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("Please fix the validation errors");
+    }
+    
     return Object.keys(newErrors).length === 0;
   };
 
@@ -71,23 +91,26 @@ const Register = () => {
       const data = await res.json();
 
       if (res.ok) {
+        toast.success("Registration Successful! Redirecting to login...");
         login(data.data || data);
-        navigate("/login");
+        setTimeout(() => navigate("/login"), 1500);
       } else {
-        alert(data.error || "Registration failed");
+        toast.error(data.error || "Registration failed. Email might already exist.");
       }
 
     } catch {
-      alert("Server error");
+      toast.error("Server connection error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   const inputStyle = (field) =>
-    `w-full pl-12 pr-4 py-3.5 rounded-xl bg-white border ${
-      errors[field] ? "border-red-400" : "border-gray-200"
-    } focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition text-sm shadow-sm`;
+    `w-full pl-12 pr-12 py-3.5 rounded-xl border transition-all text-sm shadow-sm outline-none ${
+      errors[field] 
+        ? "bg-red-50/50 border-red-300 focus:ring-4 focus:ring-red-100 text-red-900 placeholder:text-red-300" 
+        : "bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-100 text-gray-700 placeholder:text-gray-400"
+    }`;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-100 via-blue-50 to-indigo-100">
@@ -116,9 +139,9 @@ const Register = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
 
             {/* Full Name */}
-            <div>
+            <div className="space-y-1">
               <div className="relative">
-                <User className="absolute left-4 top-4 text-gray-400" size={18} />
+                <User className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.full_name ? 'text-red-400' : 'text-gray-400'}`} size={18} />
                 <input
                   name="full_name"
                   placeholder="Full Name"
@@ -127,13 +150,13 @@ const Register = () => {
                   className={inputStyle("full_name")}
                 />
               </div>
-              {errors.full_name && <p className="text-red-500 text-xs mt-1">{errors.full_name}</p>}
+              {errors.full_name && <p className="text-red-500 text-[11px] font-bold ml-2 animate-in fade-in slide-in-from-top-1">{errors.full_name}</p>}
             </div>
 
             {/* Email */}
-            <div>
+            <div className="space-y-1">
               <div className="relative">
-                <Mail className="absolute left-4 top-4 text-gray-400" size={18} />
+                <Mail className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.email ? 'text-red-400' : 'text-gray-400'}`} size={18} />
                 <input
                   name="email"
                   placeholder="Email"
@@ -142,13 +165,13 @@ const Register = () => {
                   className={inputStyle("email")}
                 />
               </div>
-              {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+              {errors.email && <p className="text-red-500 text-[11px] font-bold ml-2 animate-in fade-in slide-in-from-top-1">{errors.email}</p>}
             </div>
 
             {/* Phone */}
-            <div>
+            <div className="space-y-1">
               <div className="relative">
-                <Phone className="absolute left-4 top-4 text-gray-400" size={18} />
+                <Phone className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.phone ? 'text-red-400' : 'text-gray-400'}`} size={18} />
                 <input
                   name="phone"
                   placeholder="Phone"
@@ -157,39 +180,63 @@ const Register = () => {
                   className={inputStyle("phone")}
                 />
               </div>
-              {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+              {errors.phone && <p className="text-red-500 text-[11px] font-bold ml-2 animate-in fade-in slide-in-from-top-1">{errors.phone}</p>}
             </div>
 
             {/* Password */}
-            <div>
+            <div className="space-y-1">
               <div className="relative">
-                <Lock className="absolute left-4 top-4 text-gray-400" size={18} />
+                <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.password ? 'text-red-400' : 'text-gray-400'}`} size={18} />
                 <input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   name="password"
                   placeholder="Password"
                   value={form.password}
                   onChange={handleChange}
                   className={inputStyle("password")}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-black/5 rounded-lg transition-all"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? (
+                    <EyeOff size={18} className="text-blue-600" />
+                  ) : (
+                    <Eye size={18} className="text-gray-400" />
+                  )}
+                </button>
               </div>
-              {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
+              {errors.password && <p className="text-red-500 text-[11px] font-bold ml-2 animate-in fade-in slide-in-from-top-1">{errors.password}</p>}
             </div>
 
             {/* Confirm */}
-            <div>
+            <div className="space-y-1">
               <div className="relative">
-                <Lock className="absolute left-4 top-4 text-gray-400" size={18} />
+                <Lock className={`absolute left-4 top-1/2 -translate-y-1/2 transition-colors ${errors.confirm_password ? 'text-red-400' : 'text-gray-400'}`} size={18} />
                 <input
-                  type="password"
+                  type={showConfirmPassword ? "text" : "password"}
                   name="confirm_password"
                   placeholder="Confirm Password"
                   value={form.confirm_password}
                   onChange={handleChange}
                   className={inputStyle("confirm_password")}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 p-2 hover:bg-black/5 rounded-lg transition-all"
+                  title={showConfirmPassword ? "Hide password" : "Show password"}
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff size={18} className="text-blue-600" />
+                  ) : (
+                    <Eye size={18} className="text-gray-400" />
+                  )}
+                </button>
               </div>
-              {errors.confirm_password && <p className="text-red-500 text-xs mt-1">{errors.confirm_password}</p>}
+              {errors.confirm_password && <p className="text-red-500 text-[11px] font-bold ml-2 animate-in fade-in slide-in-from-top-1">{errors.confirm_password}</p>}
             </div>
 
             {/* Submit */}
@@ -213,7 +260,10 @@ const Register = () => {
           </div>
 
           {/* GOOGLE BUTTON (REAL STYLE) */}
-          <button className="w-full flex items-center justify-center gap-3 py-3 border rounded-xl bg-white hover:bg-gray-50 transition shadow-sm">
+          <button 
+            className="w-full flex items-center justify-center gap-3 py-3 border rounded-xl bg-white hover:bg-gray-50 transition shadow-sm"
+            onClick={() => toast.success("Google integration coming soon!")}
+          >
             <img
               src="https://www.svgrepo.com/show/475656/google-color.svg"
               className="w-5 h-5"

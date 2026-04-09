@@ -1,7 +1,5 @@
 import React, { useState, useContext } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import {
   Lock,
   ChevronDown,
@@ -21,7 +19,7 @@ import { AuthContext } from "../context/AuthContext";
 const CheckoutPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { items = [], direct = false } = location.state || {};
+  const { items = [] } = location.state || {};
   const { user } = useContext(AuthContext);
 
 
@@ -30,8 +28,8 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState("upi");
 
   // Advanced Enrollment State
-  const [batchDate, setBatchDate] = useState("10 April 2026");
-  const [enrollmentType, setEnrollmentType] = useState("full"); // 'full' | 'installment' | 'slot'
+  const [batchDate, setBatchDate] = useState("04 May 2026");
+  const [enrollmentType, setEnrollmentType] = useState("full"); // 'full' | 'slot'
 
   // Calculate base totals from items
   const subtotalBase = items.reduce((sum, item) => {
@@ -51,9 +49,6 @@ const CheckoutPage = () => {
   if (enrollmentType === 'slot') {
     totalToPay = 500 * items.length; // ₹500 per course
     summaryTitle = "Seat Reservation Fee";
-  } else if (enrollmentType === 'installment') {
-    totalToPay = Math.round(subtotalBase / 5); // 20% of total as 1st installment
-    summaryTitle = "First Installment";
   }
 
   const discount = originalPriceBase - subtotalBase;
@@ -61,7 +56,6 @@ const CheckoutPage = () => {
   if (items.length === 0) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center pt-20">
-        <Navbar />
         <h2 className="text-2xl font-bold text-slate-800 mb-4">Your checkout is empty</h2>
         <button
           onClick={() => navigate("/explore")}
@@ -69,7 +63,6 @@ const CheckoutPage = () => {
         >
           Explore Courses
         </button>
-        <Footer />
       </div>
     );
   }
@@ -115,8 +108,8 @@ const CheckoutPage = () => {
         console.log("✅ Payment Success:", data);
         alert("Enrollment & Payment initiated successfully ✅");
 
-        // 🔥 Optional: redirect to success page
-        navigate("/success");
+        // 🔥 Redirect to My Courses to see the new enrollment
+        navigate("/my-courses");
       } else {
         console.error("❌ Payment Failed:", data);
         alert(data.error || "Payment failed ❌");
@@ -128,7 +121,6 @@ const CheckoutPage = () => {
   };
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900">
-      <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 md:px-6 pt-32 pb-20">
         <div className="grid lg:grid-cols-12 gap-12 items-start">
@@ -159,9 +151,9 @@ const CheckoutPage = () => {
                     onChange={(e) => setBatchDate(e.target.value)}
                     className="w-full h-12 px-4 border-2 border-slate-200 rounded-xl appearance-none focus:border-blue-500 outline-none transition-colors font-bold text-slate-700 bg-slate-50/50"
                   >
-                    <option>10 April 2026</option>
-                    <option>25 April 2026</option>
-                    <option>10 May 2026</option>
+                    <option>04 May 2026</option>
+                    <option>20 May 2026</option>
+                    <option>05 June 2026</option>
                   </select>
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
                 </div>
@@ -185,26 +177,11 @@ const CheckoutPage = () => {
                   <p className="text-lg font-black text-blue-600 italic mt-3 leading-none">₹{subtotalBase}</p>
                 </button>
 
-                {/* Installment Plan */}
-                <button
-                  onClick={() => setEnrollmentType('installment')}
-                  className={`p-5 rounded-2xl border-2 text-left transition-all ${enrollmentType === 'installment' ? 'border-blue-600 bg-blue-50/50 shadow-xl shadow-blue-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'}`}
-                >
-                  <div className="flex justify-between items-start mb-4">
-                    <div className={`p-2 rounded-lg ${enrollmentType === 'installment' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400'}`}>
-                      <CheckCircle2 size={18} />
-                    </div>
-                    {enrollmentType === 'installment' && <span className="text-[9px] font-black uppercase text-blue-600 tracking-tighter">Selected</span>}
-                  </div>
-                  <p className="font-bold text-slate-800 leading-none">Installments</p>
-                  <p className="text-[11px] text-slate-500 mt-2 leading-tight">Divide payment into 5 months.</p>
-                  <p className="text-lg font-black text-blue-600 italic mt-3 leading-none">₹{Math.round(subtotalBase / 5)}<span className="text-[10px] text-slate-400 font-bold uppercase not-italic"> / month</span></p>
-                </button>
 
                 {/* Slot Booking */}
                 <button
                   onClick={() => setEnrollmentType('slot')}
-                  className={`p-5 rounded-2xl border-2 text-left transition-all relative overflow-hidden ${enrollmentType === 'slot' ? 'border-blue-600 bg-blue-50/50 shadow-xl shadow-blue-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'}`}
+                  className={`p-6 rounded-2xl border-2 text-left transition-all relative overflow-hidden ${enrollmentType === 'slot' ? 'border-blue-600 bg-blue-50/50 shadow-xl shadow-blue-500/10' : 'border-slate-100 hover:border-slate-200 hover:bg-slate-50'}`}
                 >
                   <div className="absolute top-0 right-0 bg-yellow-400 text-[8px] font-black px-2 py-0.5 rounded-bl-lg uppercase tracking-tighter">Popular</div>
                   <div className="flex justify-between items-start mb-4">
@@ -474,7 +451,6 @@ const CheckoutPage = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 };

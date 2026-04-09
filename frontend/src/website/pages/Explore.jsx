@@ -1,9 +1,9 @@
-import React, { useState, useContext } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import { Search, Star, CheckCircle, ShoppingCart, LayoutGrid, Globe, Building2, Layers, ChevronDown, Check } from "lucide-react";
+import React, { useState, useContext, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Search, Star, CheckCircle, ShoppingCart, LayoutGrid, Globe, Building2, Layers, ChevronDown, Check, Filter, X, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
+import { AuthContext } from "../context/AuthContext";
 import trainingBg from "../assets/training.png";
 
 const allCourses = [
@@ -14,7 +14,7 @@ const allCourses = [
     level: "Online",
     rating: "4.9",
     students: "1,240 students",
-    price: "1,999",
+    price: "3,999",
     img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
   },
   {
@@ -24,7 +24,7 @@ const allCourses = [
     level: "Internship",
     rating: "4.7",
     students: "890 students",
-    price: "19,999",
+    price: "3,999",
     img: "https://tse2.mm.bing.net/th/id/OIP.g_b84bPN6qKvVjeNS3cmeQHaEH",
   },
   {
@@ -34,7 +34,7 @@ const allCourses = [
     level: "Offline",
     rating: "4.8",
     students: "1,050 students",
-    price: "4,999",
+    price: "3,999",
     img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e",
   },
   {
@@ -44,7 +44,7 @@ const allCourses = [
     level: "Online",
     rating: "4.6",
     students: "980 students",
-    price: "1,999",
+    price: "3,999",
     img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4",
   },
   {
@@ -54,7 +54,7 @@ const allCourses = [
     level: "Training & Internship",
     rating: "4.9",
     students: "1,400 students",
-    price: "29,999",
+    price: "3,999",
     img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
   },
   {
@@ -64,55 +64,46 @@ const allCourses = [
     level: "Offline",
     rating: "4.8",
     students: "1,200 students",
-    price: "4,999",
+    price: "3,999",
     img: "https://images.unsplash.com/photo-1677442136019-21780ecad995",
   },
 ];
 
 const Explore = () => {
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState("All");
-  const [level, setLevel] = useState("All");
-  const [selectedType, setSelectedType] = useState("All");
-  const [activeDropdown, setActiveDropdown] = useState(null);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [category, setCategory] = useState(location.state?.category || "All");
   const [notification, setNotification] = useState(null);
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   const { addToCart, isInCart } = useContext(CartContext);
+  const { user } = useContext(AuthContext); // Get user for enrollment check
+  const [userEnrollments, setUserEnrollments] = useState([]);
+
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      if (user?.email) {
+        try {
+          const res = await fetch(`http://localhost:8000/api/enrollments/?email=${user.email}`);
+          const data = await res.json();
+          if (res.ok) setUserEnrollments(data.data || []);
+        } catch (err) {
+          console.error("Failed to fetch enrollments:", err);
+        }
+      }
+    };
+    fetchEnrollments();
+  }, [user]);
+
+  const isEnrolled = (courseTitle) => {
+    return userEnrollments.some(e => e.title.includes(courseTitle));
+  };
 
   const filteredCourses = allCourses.filter((course) => {
     const matchesCategory = category === "All" || course.category === category;
-
-    // Main mode selection (All, Online, Offline, Hybrid, Internship)
-    let matchesMode = level === "All" || course.level === level;
-
-    // Sub-type selection (Training, Internship, Both)
-    let matchesType = true;
-    if (selectedType !== "All") {
-      if (selectedType === "Training") {
-        matchesType = course.level === "Online" || course.level === "Offline" || course.level === "Hybrid";
-      } else if (selectedType === "Internship") {
-        matchesType = course.level === "Internship";
-      } else if (selectedType === "Training & Internship") {
-        matchesType = course.level === "Training & Internship";
-      }
-    }
-
-    // Special logic to handle mode + type interaction
-    if (level !== "All" && selectedType !== "All") {
-      if (level === "Online" || level === "Offline" || level === "Hybrid") {
-        if (selectedType === "Training") {
-          matchesMode = course.level === level;
-        } else if (selectedType === "Internship") {
-          matchesMode = course.level === "Internship"; // This logic depends on data structure, but for now filtering properly
-        } else if (selectedType === "Training & Internship") {
-          matchesMode = course.level === "Training & Internship";
-        }
-      }
-    }
-
     const matchesSearch = course.title.toLowerCase().includes(search.toLowerCase());
-
-    return matchesCategory && matchesMode && matchesType && matchesSearch;
+    return matchesCategory && matchesSearch;
   });
 
   const handleAddToCart = (e, course) => {
@@ -127,7 +118,7 @@ const Explore = () => {
 
   return (
     <>
-      <Navbar />
+      {/* Navbar is now handled globally */}
 
       {/* Toast Notification */}
       {notification && (
@@ -140,38 +131,43 @@ const Explore = () => {
       )}
 
       {/* Header */}
-      <section className="relative pt-32 sm:pt-44 pb-12 sm:pb-16 overflow-hidden bg-white">
+      <section className="relative pt-28 sm:pt-36 pb-8 sm:pb-12 overflow-hidden bg-[#f0f7ff]">
         {/* Background Image Layer */}
         <div
-          className="absolute inset-y-0 right-0 w-2/3 z-0 bg-cover bg-right-center bg-no-repeat transition-transform duration-1000 opacity-40 mix-blend-multiply"
+          className="absolute inset-y-0 right-0 w-2/3 z-0 bg-cover bg-right-center bg-no-repeat transition-transform duration-1000 opacity-20 mix-blend-multiply"
           style={{ backgroundImage: `url(${trainingBg})` }}
         ></div>
 
-        {/* Clean Whitish Gradient Overlay */}
-        <div className="absolute inset-0 z-10 bg-gradient-to-r from-white via-white/80 to-transparent"></div>
+        {/* Clean Light Blue Gradient Overlay */}
+        <div className="absolute inset-0 z-10 bg-gradient-to-r from-[#f0f7ff] via-[#f0f7ff]/90 to-transparent"></div>
 
-        <div className="relative z-20 max-w-7xl mx-auto px-2 lg:px-5 w-full">
-          <div className="max-w-3xl animate-in fade-in slide-in-from-left-10 duration-1000 ease-out fill-mode-both">
-            <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-[1.1] mb-4">
-              Advance Your Career with <br />
-              <span className="text-blue-600 drop-shadow-sm">Premium Courses</span>
+        <div className="relative z-20 max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 w-full">
+          <div className="max-w-2xl animate-in fade-in slide-in-from-left-10 duration-1000 ease-out fill-mode-both">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight leading-tight mb-3">
+              Advance with <span className="text-blue-600">Premium Courses</span>
             </h1>
-            <p className="text-slate-600 font-semibold text-base md:text-lg max-w-xl leading-relaxed mb-8">
-              Master new skills with our comprehensive training, hybrid internships, and dedicated placement support.
+            <p className="text-slate-500 font-medium text-sm sm:text-base max-w-lg leading-relaxed mb-6">
+              Master new skills with our comprehensive training and placement support.
             </p>
 
-            <div className="mt-8 flex flex-col sm:flex-row items-center gap-3 max-w-2xl bg-white/80 backdrop-blur-md rounded-3xl p-2 shadow-2xl shadow-blue-100/50 border border-white focus-within:ring-4 focus-within:ring-blue-100 transition-all">
-              <div className="flex items-center flex-1 w-full">
-                <Search className="ml-4 text-blue-500" size={22} />
+            <div className="mt-6 flex flex-col gap-4 max-w-2xl bg-white/90 backdrop-blur-xl rounded-[2rem] p-2 sm:p-1.5 shadow-2xl shadow-blue-500/10 border border-white/50 transition-all sm:flex-row sm:items-center sm:rounded-full">
+              <div className="flex items-center flex-1 bg-slate-50/50 rounded-2xl sm:bg-transparent">
+                <Search className="ml-5 text-blue-500 shrink-0" size={22} />
                 <input
                   type="text"
                   placeholder="What would you like to learn today?"
-                  className="w-full px-4 py-3 bg-transparent outline-none text-slate-700 font-bold placeholder:text-slate-400"
+                  className="w-full px-4 py-3.5 bg-transparent outline-none text-slate-700 font-bold placeholder:text-slate-400 text-sm sm:text-base"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
+                <button
+                  onClick={() => setIsFilterDrawerOpen(true)}
+                  className="lg:hidden p-3 mr-2 bg-white text-blue-600 rounded-xl shadow-sm hover:shadow-md transition-all border border-slate-100 active:scale-95"
+                >
+                  <Filter size={20} />
+                </button>
               </div>
-              <button className="w-full sm:w-auto bg-blue-600 text-white px-10 py-3.5 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95">
+              <button className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-blue-500 text-white px-10 py-4 sm:py-3.5 rounded-2xl sm:rounded-full font-black hover:shadow-xl hover:shadow-blue-500/20 transition-all active:scale-95 text-sm sm:text-base uppercase tracking-wider">
                 Search
               </button>
             </div>
@@ -180,16 +176,16 @@ const Explore = () => {
       </section>
 
       {/* Main Layout */}
-      <section className="bg-white py-16">
-        <div className="max-w-7xl mx-auto px-6 lg:px-16 grid lg:grid-cols-4 gap-8">
+      <section className="bg-white py-10 sm:py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-10 lg:px-16 grid lg:grid-cols-4 gap-8">
 
           {/* Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-100 lg:sticky lg:top-28">
-              <h2 className="font-black text-xs uppercase tracking-widest mb-4 text-slate-400 hidden lg:block">Categories</h2>
-              
-              <div className="flex lg:flex-col gap-2 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide no-scrollbar">
-                {["All", "Software Development", "Testing", "UI/UX Design", "DevOps", "AI/ML"].map((cat) => (
+          <div className="hidden lg:block lg:col-span-1">
+            <div className="sticky top-32 z-10 self-start bg-white p-6 rounded-3xl border border-slate-100 shadow-sm shadow-blue-500/5">
+              <h2 className="font-black text-xs uppercase tracking-widest mb-4 text-slate-400 font-sans">Filter Categories</h2>
+
+              <div className="flex lg:flex-col gap-2 overflow-x-auto pb-4 lg:pb-0 scrollbar-hide no-scrollbar px-1">
+                {["All", "Software Development", "Testing", "UI/UX Design", "DevOps", "AI/ML", "Data Science", "Soft Skills"].map((cat) => (
                   <button
                     key={cat}
                     onClick={() => setCategory(cat)}
@@ -207,69 +203,6 @@ const Explore = () => {
 
           {/* Courses Grid */}
           <div className="lg:col-span-3">
-
-            {/* Advanced Hierarchical Toggle Switch */}
-            <div className="flex justify-center mb-12 z-40 relative">
-              <div className="flex items-center bg-white/80 backdrop-blur-md rounded-full p-1.5 shadow-xl shadow-blue-100/50 border border-blue-50/50 ring-1 ring-slate-100">
-                {["All", "Online", "Offline", "Hybrid"].map((lvl) => {
-                  const isActive = level === lvl;
-                  const hasDropdown = ["Online", "Offline", "Hybrid"].includes(lvl);
-
-                  return (
-                    <div key={lvl} className="relative">
-                      <button
-                        onClick={() => {
-                          setLevel(lvl);
-                          if (hasDropdown) {
-                            setActiveDropdown(activeDropdown === lvl ? null : lvl);
-                          } else {
-                            setActiveDropdown(null);
-                            setSelectedType("All");
-                          }
-                        }}
-                        className={`flex items-center gap-2 px-6 md:px-8 py-2.5 rounded-full text-[15px] transition-all duration-300 font-semibold group ${isActive
-                          ? "bg-blue-500 text-white shadow-lg shadow-blue-300"
-                          : "text-slate-600 hover:text-blue-600 hover:bg-blue-50"
-                          }`}
-                      >
-                        {lvl}
-                        {hasDropdown && (
-                          <ChevronDown
-                            size={16}
-                            className={`transition-transform duration-300 ${activeDropdown === lvl ? "rotate-180" : ""}`}
-                          />
-                        )}
-                      </button>
-
-                      {/* Dropdown Menu */}
-                      {hasDropdown && activeDropdown === lvl && (
-                        <div className="absolute top-full left-0 mt-3 w-64 bg-white rounded-3xl shadow-2xl border border-slate-100 p-2 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
-                          {["Internship", "Training", "Training & Internship"].map((type) => (
-                            <button
-                              key={type}
-                              onClick={() => {
-                                setSelectedType(type);
-                                setLevel(lvl);
-                                setActiveDropdown(null);
-                              }}
-                              className={`flex items-center justify-between w-full px-5 py-3.5 rounded-2xl text-sm font-medium transition-all ${selectedType === type && level === lvl
-                                ? "bg-blue-500 text-white shadow-md shadow-blue-200"
-                                : "text-slate-600 hover:bg-blue-50 hover:text-blue-600"
-                                }`}
-                            >
-                              <span>{type}</span>
-                              {selectedType === type && level === lvl && (
-                                <Check size={16} strokeWidth={3} />
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
 
             <style>
               {`
@@ -331,25 +264,45 @@ const Explore = () => {
                         ₹{course.price}
                       </p>
 
-                      <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between gap-2 sm:gap-3">
-                        {/* LEFT - Details Button */}
-                        <Link to={`/course/${course.id}`} className="flex-[3]">
-                          <button className="w-full py-2.5 sm:py-3 rounded-xl text-blue-600 bg-blue-100 font-bold text-xs sm:text-sm hover:bg-blue-200 transition-all">
-                            Details
-                          </button>
-                        </Link>
+                      <div className="mt-auto pt-4 border-t border-slate-100">
+                        {/* Enroll/Cart Actions */}
+                        {isEnrolled(course.title) ? (
+                          <Link to="/my-courses" className="block w-full">
+                            <button className="w-full py-3.5 rounded-2xl bg-green-50 text-green-600 font-black text-sm border border-green-100 flex items-center justify-center gap-2 hover:bg-green-100 transition-all">
+                              <CheckCircle size={20} />
+                              Already Enrolled
+                            </button>
+                          </Link>
+                        ) : (
+                          <div className="flex gap-2">
+                            {/* Enroll Now (Takes primary position) */}
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (!added) addToCart(course);
+                                navigate("/checkout", { state: { items: [course] } });
+                              }}
+                              className="flex-[4] py-1.5 bg-blue-400 text-white rounded-2xl font-black text-sm shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95 flex items-center justify-center gap-2"
+                            >
+                              {/* <Zap size={14} className="fill-white" /> */}
+                              Enroll Now
+                            </button>
 
-                        {/* RIGHT - Cart Icon */}
-                        <button
-                          onClick={(e) => handleAddToCart(e, course)}
-                          disabled={added}
-                          className={`flex-1 p-2.5 sm:p-3 rounded-xl transition-all duration-300 flex items-center justify-center ${added
-                            ? "bg-green-100 text-green-600 cursor-not-allowed"
-                            : "bg-blue-50 text-blue-600 hover:bg-blue-100"
-                            }`}
-                        >
-                          {added ? <CheckCircle size={18} /> : <ShoppingCart size={18} />}
-                        </button>
+                            {/* Add to Cart (Icon Action) */}
+                            <button
+                              onClick={(e) => handleAddToCart(e, course)}
+                              disabled={added}
+                              className={`flex-1 py-3.5 rounded-2xl transition-all duration-300 flex items-center justify-center ${added
+                                ? "bg-green-100 text-green-600 cursor-not-allowed border-green-200"
+                                : "bg-slate-50 text-slate-500 hover:bg-blue-50 hover:text-blue-600 border border-slate-100"
+                                }`}
+                              title={added ? "Added to Cart" : "Add to Cart"}
+                            >
+                              {added ? <CheckCircle size={22} /> : <ShoppingCart size={22} />}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -361,7 +314,7 @@ const Explore = () => {
               <div className="text-center py-20 bg-white rounded-3xl border-2 border-dashed border-slate-200">
                 <p className="text-slate-400 text-lg">No courses found matching your search.</p>
                 <button
-                  onClick={() => { setSearch(""); setCategory("All"); setLevel("All"); }}
+                  onClick={() => { setSearch(""); setCategory("All"); }}
                   className="mt-4 text-blue-500 font-bold hover:underline"
                 >
                   Clear all filters
@@ -373,7 +326,65 @@ const Explore = () => {
         </div>
       </section>
 
-      <Footer />
+      {/* Mobile Filter Drawer */}
+      {isFilterDrawerOpen && (
+        <div className="fixed inset-0 z-[300] lg:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-300"
+            onClick={() => setIsFilterDrawerOpen(false)}
+          ></div>
+
+          {/* Drawer */}
+          <div className="absolute bottom-0 left-0 w-full bg-white rounded-t-[3rem] shadow-2xl animate-in slide-in-from-bottom duration-500 overflow-hidden flex flex-col max-h-[85vh]">
+            <div className="p-6 border-b border-slate-50 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-black text-slate-800">Filters</h3>
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Refine your search</p>
+              </div>
+              <button
+                onClick={() => setIsFilterDrawerOpen(false)}
+                className="p-3 bg-slate-50 rounded-2xl text-slate-400 active:scale-90 transition-all"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto p-6 space-y-10 pb-24">
+              {/* Category Selection */}
+              <div className="space-y-4">
+                <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em]">Select Category</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {["All", "Software Development", "Testing", "UI/UX Design", "DevOps", "AI/ML"].map((cat) => (
+                    <button
+                      key={cat}
+                      onClick={() => setCategory(cat)}
+                      className={`px-4 py-3 rounded-2xl font-bold text-sm transition-all ${category === cat
+                        ? "bg-blue-600 text-white shadow-lg shadow-blue-200"
+                        : "bg-slate-50 text-slate-600 border border-transparent hover:border-slate-200"
+                        }`}
+                    >
+                      {cat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Apply Button */}
+            <div className="absolute bottom-0 left-0 w-full p-6 bg-white/80 backdrop-blur-md border-t border-slate-50">
+              <button
+                onClick={() => setIsFilterDrawerOpen(false)}
+                className="w-full py-4 bg-blue-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-blue-500/20 active:scale-95 transition-all"
+              >
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Footer is now handled globally */}
     </>
   );
 };

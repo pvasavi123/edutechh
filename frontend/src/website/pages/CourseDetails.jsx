@@ -3,8 +3,6 @@
 
 import React, { useContext, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
 import { CartContext } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
 import { Star, CheckCircle, Clock, Calendar, MapPin, Globe, BookOpen, GraduationCap, ArrowRight } from "lucide-react";
@@ -18,22 +16,22 @@ const courseData = [
     id: 0,
     title: "React Full Stack Development",
     description: "Master the art of building scalable web applications using the MERN stack (MongoDB, Express, React, Node.js). This course takes you from frontend fundamentals to advanced backend architecture.",
-    price: "1,999",
+    price: "3,999",
     rating: "4.9",
     students: "1,240 students",
     language: "English",
     duration: "3 Months",
     mode: "Online",
     location: "Hyderabad",
-    batchStart: "10 April 2026",
+    batchStart: "04 May 2026",
     category: "Software Development",
     img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
     instructor: "John Developer",
     instructorBio: "Senior Full Stack Engineer with 10+ years of experience in React and Node.js ecosystems.",
     instructorImage: "https://randomuser.me/api/portraits/men/32.jpg",
     instructorCourses: [
-      { id: 3, title: "Java Full Stack Development", img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4", price: "95" },
-      { id: 5, title: "Machine Learning Masterclass", img: "https://images.unsplash.com/photo-1677442136019-21780ecad995", price: "130" }
+      { id: 3, title: "Java Full Stack Development", img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4", price: "3,999" },
+      { id: 5, title: "Machine Learning Masterclass", img: "https://images.unsplash.com/photo-1677442136019-21780ecad995", price: "3,999" }
     ],
     learn: [
       "Modern React Hook & Context API",
@@ -57,7 +55,7 @@ const courseData = [
     id: 1,
     title: "Selenium Automation Testing",
     description: "Go from manual tester to automation expert. Learn how to write robust, maintainable test scripts using Selenium WebDriver and Java for enterprise-level applications.",
-    price: "19,999",
+    price: "3,999",
     rating: "4.7",
     students: "890 students",
     language: "English",
@@ -85,25 +83,24 @@ const courseData = [
       "Interest in automation and QA",
       "A machine with Java installed"
     ],
-    instructor: "Ravi Testing",
     instructorBio: "Expert QA Automation Engineer specialized in Selenium and Java testing frameworks.",
     instructorImage: "https://randomuser.me/api/portraits/men/45.jpg",
     instructorCourses: [
-      { id: 0, title: "React Full Stack", img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c", price: "99" }
+      { id: 0, title: "React Full Stack", img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c", price: "3,999" }
     ]
   },
   {
     id: 2,
     title: "Figma UI/UX Complete Guide",
     description: "Design stunning user interfaces and research impactful user experiences. This course covers everything from wireframing to high-fidelity prototyping in Figma.",
-    price: "4,999",
+    price: "3,999",
     rating: "4.8",
     students: "1,050 students",
     language: "English",
     duration: "1.5 Months",
     mode: "Offline",
     location: "Hyderabad",
-    batchStart: "20 April 2026",
+    batchStart: "04 May 2026",
     category: "UI/UX Design",
     img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e",
     instructor: "Design Expert Sarah",
@@ -129,14 +126,14 @@ const courseData = [
     id: 3,
     title: "Java Full Stack Development",
     description: "Become an enterprise-ready Java developer. Learn Core Java, Spring Boot, and React to build secure, high-performance web applications used by major corporations.",
-    price: "1,999",
+    price: "3,999",
     rating: "4.6",
     students: "980 students",
     language: "English",
     duration: "3 Months",
     mode: "Online",
     location: "Hyderabad",
-    batchStart: "25 April 2026",
+    batchStart: "04 May 2026",
     category: "Software Development",
     img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4",
     instructor: "Advanced Java Guru",
@@ -162,14 +159,14 @@ const courseData = [
     id: 4,
     title: "AWS & DevOps",
     description: "Master the cloud. Learn to manage infrastructure at scale using AWS services, Docker, Kubernetes, and modern DevOps tools to speed up delivery cycles.",
-    price: "29,999",
+    price: "3,999",
     rating: "4.9",
     students: "1,400 students",
     language: "English",
     duration: "2.5 Months",
     mode: "Training & Internship",
     location: "Remote",
-    batchStart: "30 April 2026",
+    batchStart: "04 May 2026",
     category: "DevOps",
     img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa",
     instructor: "Cloud Solutions Architect",
@@ -195,7 +192,7 @@ const courseData = [
     id: 5,
     title: "Machine Learning",
     description: "Step into the world of Data Science and AI. Learn the math, the algorithms, and the Python tools required to build predictive models and analyze complex datasets.",
-    price: "4,999",
+    price: "3,999",
     rating: "4.8",
     students: "1,200 students",
     language: "English",
@@ -227,9 +224,9 @@ const courseData = [
 ];
 
 const relatedCourses = [
-  { id: 3, title: "Java Full Stack Development", img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4", price: "95" },
-  { id: 4, title: "AWS & DevOps", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa", price: "120" },
-  { id: 2, title: "Figma UI/UX Complete Guide", img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e", price: "89" },
+  { id: 3, title: "Java Full Stack Development", img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4", price: "3,999" },
+  { id: 4, title: "AWS & DevOps", img: "https://images.unsplash.com/photo-1451187580459-43490279c0fa", price: "3,999" },
+  { id: 2, title: "Figma UI/UX Complete Guide", img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e", price: "3,999" },
 ];
 
 const CourseDetails = () => {
@@ -237,8 +234,21 @@ const CourseDetails = () => {
   const navigate = useNavigate();
   const { addToCart, isInCart } = useContext(CartContext);
 
-  const { isLoggedIn, openAuthModal } = useContext(AuthContext);
+  const { isLoggedIn, openAuthModal, user } = useContext(AuthContext);
   const [notification, setNotification] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
+
+  useEffect(() => {
+    const fetchEnrollments = async () => {
+      if (!user?.email) return;
+      try {
+        const response = await fetch(`http://localhost:8000/api/enrollments/?email=${user.email}`);
+        const data = await response.json();
+        if (response.ok) setEnrollments(data.data || []);
+      } catch (err) { console.error("Enrollment check failed"); }
+    };
+    fetchEnrollments();
+  }, [user]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -260,6 +270,7 @@ const CourseDetails = () => {
   }
 
   const added = isInCart(course.title);
+  const enrolled = enrollments.some(e => e.items.some(item => item.id === course.id));
 
   const handleEnroll = () => {
     if (!isLoggedIn) {
@@ -268,7 +279,6 @@ const CourseDetails = () => {
       navigate("/checkout", { state: { items: [course], direct: true } });
     }
   };
-
 
   const handleAddToCart = () => {
     const success = addToCart(course);
@@ -280,7 +290,7 @@ const CourseDetails = () => {
 
   return (
     <>
-      <Navbar />
+      {/* Navbar handled globally */}
 
       {/* Dynamic Toast Notification */}
       {notification && (
@@ -494,25 +504,36 @@ const CourseDetails = () => {
 
               {/* Action Buttons */}
               <div className="w-full space-y-4">
-                <button
-                  onClick={handleEnroll}
-                  disabled={added}
-                  className={`w-full py-5 rounded-2xl font-black text-xl transition-all shadow-2xl relative overflow-hidden group ${added
-                    ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
-                    : "bg-blue-600 text-white shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-1 active:translate-y-0"
-                    }`}
-                >
-                  <span className="relative z-10">{added ? "Already in Cart" : "Enroll Now"}</span>
-                  {!added && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>}
-                </button>
-
-                {!added && (
+                {enrolled ? (
                   <button
-                    onClick={handleAddToCart}
-                    className="w-full py-5 rounded-2xl border-2 border-blue-600 text-blue-600 font-black text-lg hover:bg-blue-50 transition-all flex items-center justify-center gap-3"
+                    onClick={() => navigate("/my-courses")}
+                    className="w-full py-5 bg-green-600 text-white rounded-2xl font-black text-xl transition-all shadow-2xl shadow-green-500/20 hover:-translate-y-1 active:translate-y-0 flex items-center justify-center gap-3"
                   >
-                    Add to Cart
+                    Go to My Courses <ArrowRight size={22} />
                   </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={handleEnroll}
+                      disabled={added}
+                      className={`w-full py-5 rounded-2xl font-black text-xl transition-all shadow-2xl relative overflow-hidden group ${added
+                        ? "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed"
+                        : "bg-blue-600 text-white shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-1 active:translate-y-0"
+                        }`}
+                    >
+                      <span className="relative z-10">{added ? "Already in Cart" : "Enroll Now"}</span>
+                      {!added && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>}
+                    </button>
+
+                    {!added && (
+                      <button
+                        onClick={handleAddToCart}
+                        className="w-full py-5 rounded-2xl border-2 border-blue-600 text-blue-600 font-black text-lg hover:bg-blue-50 transition-all flex items-center justify-center gap-3"
+                      >
+                        Add to Cart
+                      </button>
+                    )}
+                  </>
                 )}
 
                 <button className="w-full py-4 text-slate-400 font-black hover:text-slate-800 text-[10px] uppercase tracking-widest transition-all">
@@ -554,7 +575,6 @@ const CourseDetails = () => {
         </div>
       </section>
 
-      <Footer />
     </>
   );
 };

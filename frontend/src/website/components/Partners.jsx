@@ -5,7 +5,7 @@ const Partners = () => {
     "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
     "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg",
     "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg",
-    "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg",
+
 
     "https://upload.wikimedia.org/wikipedia/commons/a/a0/Wipro_Primary_Logo_Color_RGB.svg",
     "https://upload.wikimedia.org/wikipedia/commons/5/50/Oracle_logo.svg"

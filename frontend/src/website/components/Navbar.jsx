@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import {
   ShoppingCart,
   User,
@@ -10,16 +10,35 @@ import {
   X,
   Mail,
   Phone,
-  LogOut
+  LogOut,
+  Code,
+  Bug,
+  Database,
+  Brain,
+  Server,
+  Users,
+  ChevronRight
 } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
 
+const categories = [
+  { name: "Software Development", icon: Code, color: "text-blue-500", bg: "bg-blue-50" },
+  { name: "Testing", icon: Bug, color: "text-red-500", bg: "bg-red-50" },
+  { name: "Data Science", icon: Database, color: "text-cyan-500", bg: "bg-cyan-50" },
+  { name: "AI / ML", icon: Brain, color: "text-purple-500", bg: "bg-purple-50" },
+  { name: "DevOps", icon: Server, color: "text-orange-500", bg: "bg-orange-50" },
+  { name: "Soft Skills", icon: Users, color: "text-emerald-500", bg: "bg-emerald-50" },
+];
+
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
+  const [isExploreOpen, setIsExploreOpen] = useState(false);
+  const profileMenuRef = useRef(null);
+  const exploreRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { cart } = useContext(CartContext);
@@ -27,11 +46,38 @@ const Navbar = () => {
 
   const isHome = location.pathname === "/";
 
+  // Handle click outside to close menus
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
+        setIsProfileMenuOpen(false);
+      }
+      if (exploreRef.current && !exploreRef.current.contains(event.target)) {
+        setIsExploreOpen(false);
+      }
+    };
+
+    if (isProfileMenuOpen || isExploreOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isProfileMenuOpen, isExploreOpen]);
+
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Close menus when route changes
+  useEffect(() => {
+    setIsMenuOpen(false);
+    setIsProfileMenuOpen(false);
+    setIsExploreOpen(false);
+  }, [location.pathname]);
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
@@ -59,26 +105,76 @@ const Navbar = () => {
         </Link>
 
         {/* SEARCH BAR (Hidden on mobile) */}
-        <div className="hidden md:flex relative items-center w-1/3">
+        {/* <div className="hidden md:flex relative items-center w-1/3">
           <Search className="absolute left-4 text-blue-400" size={18} />
           <input
             type="text"
             placeholder="Search courses..."
             className="w-full bg-blue-50/50 border border-blue-100 py-2.5 pl-12 pr-4 rounded-2xl text-sm focus:ring-4 focus:ring-blue-100 focus:bg-white focus:border-blue-300 transition-all outline-none text-slate-700"
           />
-        </div>
+        </div> */}
 
         {/* ACTIONS */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Explore (Desktop) */}
-          <button
-            onClick={() => navigate("/explore")}
-            className="hidden lg:flex items-center gap-2 px-4 py-2 rounded-xl bg-blue-50 text-slate-600 font-semibold hover:bg-blue-100 hover:text-blue-600 transition-all"
+          {/* Explore (Desktop Dropdown) */}
+          <div
+            className="hidden lg:block relative"
+            ref={exploreRef}
           >
-            <LayoutGrid size={18} />
-            <span>Explore</span>
-            <ChevronDown size={14} className="opacity-60" />
-          </button>
+            <button
+              onClick={() => setIsExploreOpen(!isExploreOpen)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all font-semibold ${isExploreOpen ? "bg-blue-600 text-white shadow-lg shadow-blue-200" : "bg-blue-50 text-slate-600 hover:bg-blue-100"
+                }`}
+            >
+              <LayoutGrid size={18} />
+              <span>Explore</span>
+              <ChevronDown size={14} className={`transition-transform duration-300 ${isExploreOpen ? "rotate-180" : "opacity-60"}`} />
+            </button>
+
+            {/* Desktop Dropdown Menu */}
+            {isExploreOpen && (
+              <div className="absolute top-full left-0 mt-3 w-80 bg-white rounded-[2rem] shadow-2xl border border-slate-100 p-3 z-[200] animate-in fade-in slide-in-from-top-4 duration-300">
+                <div className="p-4 mb-2">
+                  <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.2em]">Course Categories</p>
+                </div>
+                <div className="grid gap-1">
+                  {categories.map((cat, i) => {
+                    const Icon = cat.icon;
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => {
+                          navigate("/explore", { state: { category: cat.name } });
+                          setIsExploreOpen(false);
+                        }}
+                        className="group flex items-center justify-between w-full p-4 rounded-2xl hover:bg-slate-50 transition-all text-left"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className={`p-2.5 rounded-xl ${cat.bg} ${cat.color} group-hover:scale-110 transition-transform`}>
+                            <Icon size={20} />
+                          </div>
+                          <div>
+                            <p className="text-sm font-bold text-slate-800 leading-none">{cat.name}</p>
+                            <p className="text-[10px] text-slate-400 font-medium mt-1 leading-none">Explore premium courses</p>
+                          </div>
+                        </div>
+                        <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="mt-2 p-2 border-t border-slate-50">
+                  <button
+                    onClick={() => navigate("/explore")}
+                    className="w-full py-3 bg-blue-50 text-blue-600 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all"
+                  >
+                    View All Courses
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Cart */}
           <div
@@ -124,18 +220,21 @@ const Navbar = () => {
                 <div className="relative">
                   <button
                     onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
-                    className={`flex items-center gap-2 p-1 pr-3 rounded-full border-2 transition-all duration-300 ${isProfileMenuOpen ? "border-blue-500 bg-blue-50" : "border-transparent hover:bg-slate-50"
+                    className={`flex items-center justify-center p-1 rounded-full border-2 transition-all duration-300 ${isProfileMenuOpen
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-transparent hover:bg-slate-50"
                       }`}
                   >
-                    <div className="h-9 w-9 bg-blue-600 rounded-full flex items-center justify-center text-white font-black shadow-lg shadow-blue-200 uppercase">
-                      {user?.full_name?.charAt(0) || user?.email?.charAt(0) || <User size={20} />}
+                    <div className="h-9 w-9 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold shadow-md uppercase">
+                      {user?.full_name?.charAt(0) ||
+                        user?.email?.charAt(0) ||
+                        <User size={18} />}
                     </div>
-                    <ChevronDown size={14} className={`text-slate-400 transition-transform duration-300 ${isProfileMenuOpen ? "rotate-180 text-blue-600" : ""}`} />
                   </button>
 
                   {/* Desktop Profile Dropdown */}
                   {isProfileMenuOpen && (
-                    <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-3xl shadow-2xl border border-slate-100 p-2 z-[200] animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="absolute top-full right-0 mt-3 w-72 bg-white rounded-2xl shadow-2xl border border-slate-50 p-2 z-[200] animate-in fade-in slide-in-from-top-4 duration-300">
                       {/* User Info Section */}
                       <div className="p-5 border-b border-slate-50 mb-2">
                         <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-3">Your Account</p>
@@ -157,13 +256,13 @@ const Navbar = () => {
 
                       {/* Actions */}
                       <div className="grid gap-1">
-                        <button
+                        {/* <button
                           onClick={() => { navigate("/my-courses"); setIsProfileMenuOpen(false); }}
                           className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-slate-600 font-bold hover:bg-blue-50 hover:text-blue-600 transition-all text-sm"
                         >
                           <LayoutGrid size={18} />
                           My Courses
-                        </button>
+                        </button> */}
                         <button
                           onClick={() => { logout(); setIsProfileMenuOpen(false); }}
                           className="flex items-center gap-3 w-full px-4 py-3 rounded-2xl text-red-500 font-black hover:bg-red-50 transition-all text-sm mt-1"
@@ -197,13 +296,36 @@ const Navbar = () => {
             }`}
         >
           <div className="px-6 py-8 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-80px)]">
-            <button
-              onClick={() => { navigate("/explore"); setIsMenuOpen(false); }}
-              className="flex items-center gap-4 px-5 py-4 bg-blue-50 text-blue-600 rounded-2xl font-black text-base shadow-sm active:scale-95 transition-all"
-            >
-              <LayoutGrid size={24} />
-              Explore All Courses
-            </button>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => { navigate("/explore"); setIsMenuOpen(false); }}
+                className="flex items-center gap-4 px-5 py-4 bg-blue-600 text-white rounded-2xl font-black text-base shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+              >
+                <LayoutGrid size={24} />
+                Explore All Courses
+              </button>
+
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {categories.map((cat, i) => {
+                  const Icon = cat.icon;
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        navigate("/explore", { state: { category: cat.name } });
+                        setIsMenuOpen(false);
+                      }}
+                      className="flex flex-col items-center justify-center p-4 bg-slate-50 border border-slate-100 rounded-2xl active:scale-95 transition-all text-center gap-2"
+                    >
+                      <div className={`p-2 rounded-lg ${cat.bg} ${cat.color}`}>
+                        <Icon size={18} />
+                      </div>
+                      <span className="text-[10px] font-black text-slate-700 leading-tight">{cat.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             {!isLoggedIn ? (
               <div className="flex flex-col gap-3 mt-2">

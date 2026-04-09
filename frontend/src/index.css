@@ -12,7 +12,6 @@ html,
 body,
 #root {
   width: 100%;
-  overflow-x: hidden;
 }
 
 /* Admin specific global base style */

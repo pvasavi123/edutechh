@@ -67,7 +67,6 @@ import Partners from "../components/Partners";
 import FAQ from "../components/FAQ";
 import Footer from "../components/Footer";
 import Courses from "../components/Courses";
-import Enroll from "../pages/Enroll";   // ADD THIS
 import MyCourses from "../pages/MyCourses";
 import CheckoutPage from "../pages/CheckoutPage";
 import Login from "../pages/Login";
@@ -77,11 +76,23 @@ import Cart from "../pages/Cart";
 import CourseDetails from "../pages/CourseDetails";
 import ForgotPassword from "../pages/ForgotPassword";
 import AuthModal from "../components/AuthModal";
+import ScrollToTop from "../components/ScrollToTop";
+import Form from "../components/Form";
+
+const WebsiteLayout = ({ children }) => {
+  return (
+    <>
+      <ScrollToTop />
+      <Navbar />
+      {children}
+      <Footer />
+    </>
+  );
+};
 
 function Home() {
   return (
     <div className="w-full overflow-x-hidden">
-      <Navbar />
       <div className="pt-20">
         <Hero />
         <Categories />
@@ -90,7 +101,6 @@ function Home() {
         <WhyChoose />
         <Partners />
         <FAQ />
-        <Footer />
       </div>
     </div>
   );
@@ -98,7 +108,7 @@ function Home() {
 
 const AppRoutes = () => {
   return (
-    <>
+    <WebsiteLayout>
       <AuthModal />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -108,11 +118,11 @@ const AppRoutes = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/enroll" element={<Enroll />} />
+        <Route path="/internship" element={<Form />} />
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/my-courses" element={<MyCourses />} />
       </Routes>
-    </>
+    </WebsiteLayout>
   );
 };
 

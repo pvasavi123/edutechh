@@ -28,7 +28,7 @@ const Sidebar = () => {
             E
           </div>
           <div>
-            <span className="font-black text-slate-800 tracking-tight block leading-none text-sm">EduTech</span>
+            <span className="font-black text-slate-800 tracking-tight block leading-none text-sm">TX hub</span>
             <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">Admin Pro</span>
           </div>
         </div>
@@ -110,7 +110,7 @@ const Sidebar = () => {
             E
           </div>
           <div className="flex flex-col text-left">
-            <span className="text-xl font-black tracking-tight text-slate-800 leading-none">EduTech</span>
+            <span className="text-xl font-black tracking-tight text-slate-800 leading-none">TX hub</span>
             <span className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em] mt-1">Admin Pro</span>
           </div>
         </div>

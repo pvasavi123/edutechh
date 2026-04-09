@@ -3,26 +3,24 @@ import React, { createContext, useState, useEffect } from "react";
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [user, setUser] = useState(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [modalView, setModalView] = useState("login"); // 'login' or 'register'
-
-  useEffect(() => {
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    return localStorage.getItem("user") ? true : false;
+  });
+  const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {
       try {
         const parsed = JSON.parse(savedUser);
-        // Robust unwrapping: if it's wrapped in a 'data' key, unwrap it
-        const actualUser = parsed?.data ? parsed.data : parsed;
-        setUser(actualUser);
-        setIsLoggedIn(true);
+        return parsed?.data ? parsed.data : parsed;
       } catch (err) {
         console.error("Failed to parse saved user:", err);
         localStorage.removeItem("user");
       }
     }
-  }, []);
+    return null;
+  });
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [modalView, setModalView] = useState("login"); // 'login' or 'register'
 
   const login = (userData) => {
     // Robust unwrapping for Django Response objects or raw user objects
@@ -39,6 +37,7 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem("user");
     setUser(null);
     setIsLoggedIn(false);
+    window.location.href = "http://localhost:3000/";
   };
 
   const openAuthModal = (view = "login") => {

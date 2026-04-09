@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Code,
   Bug,
@@ -49,6 +49,7 @@ const categories = [
 ];
 
 const Categories = () => {
+  const navigate = useNavigate();
   return (
     <section className="bg-slate-50 py-16 md:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
@@ -71,6 +72,7 @@ const Categories = () => {
             return (
               <div
                 key={index}
+                onClick={() => navigate("/explore", { state: { category: cat.name } })}
                 className="group bg-white rounded-2xl shadow-sm hover:shadow-2xl transition-all duration-500 cursor-pointer overflow-hidden flex flex-col border border-slate-100"
               >
                 {/* Image Container with Zoom Effect */}
@@ -102,13 +104,10 @@ const Categories = () => {
                     </p>
                   </div>
                   
-                  {/* "Learn More" Link (Visible on hover) */}
-                  <Link
-  to="/explore"
-  className="mt-6 flex items-center text-blue-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0"
->
-  Explore Path <span className="ml-2">→</span>
-</Link>
+                  {/* "Learn More" Link */}
+                  <div className="mt-6 flex items-center text-blue-600 font-semibold text-sm opacity-0 group-hover:opacity-100 transition-opacity transform translate-y-2 group-hover:translate-y-0">
+                    Explore Path <span className="ml-2">→</span>
+                  </div>
                 </div>
               </div>
             );

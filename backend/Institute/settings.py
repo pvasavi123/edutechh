@@ -195,4 +195,8 @@ SOCIALACCOUNT_PROVIDERS = {
 load_dotenv()
 
 
- 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+    }
+}

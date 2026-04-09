@@ -1,47 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import {
   Download, IndianRupee, ShieldCheck, Users as UsersIcon,
-  Wallet, Activity, Cpu, Briefcase, Globe
+  Wallet, Activity, Cpu, Globe
 } from 'lucide-react';
+
+import { useAdmin } from '../context/AdminContext';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { markAsSeen } = useAdmin();
 
-  // ✅ MOVE fetchUsers OUTSIDE useEffect
-  const fetchUsers = async () => {
-    try {
-      const response = await fetch('http://192.168.1.16:8000/api/students/');
-      const data = await response.json();
-
-      const formatted = (data || []).map(u => ({
-        id: u.id,
-        name: u.name || "New Student",
-        specialization: u.branch || "N/A",
-        courseTitle: u.branch || "General",
-        type: u.enrollmentType || "Course",
-        mode: u.mode || "Offline",
-        totalFee: Number(u.totalFee) || 0,
-        paidAmount: Number(u.paidAmount) || 0,
-      }));
-
-      setUsers(formatted);
-    } catch (err) {
-      console.error("Fetch Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ AUTO REFRESH ADDED HERE
   useEffect(() => {
-    fetchUsers(); // first load
+    markAsSeen();
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://192.168.1.49:8000/api/enrollments/');
+        const result = await response.json();
+        const dataArray = Array.isArray(result) ? result : result.data;
 
-    const interval = setInterval(() => {
-      fetchUsers(); // refresh every 2 sec
-    }, 2000);
+        const formatted = (dataArray || []).map(u => {
+          let itemsArray = [];
 
-    return () => clearInterval(interval); // cleanup
+          if (Array.isArray(u.items)) {
+            itemsArray = u.items;
+          } else if (typeof u.items === "string") {
+            try {
+              itemsArray = JSON.parse(u.items);
+            } catch {
+              itemsArray = [];
+            }
+          }
+
+          const totalFee = Number(u.total_fee) || 0;
+          const paidAmount = Number(u.amount_paid) || 0;
+
+          return {
+            id: u.id,
+            name: u.full_name || "New Student", // Assuming full_name exists, fallback to firstItem title
+            courses: itemsArray,
+            type: u.enrollment_type || "Course",
+            mode: u.mode || "Offline",
+            totalFee,
+            paidAmount,
+          };
+        });
+
+        setUsers(formatted);
+      } catch (err) {
+        console.error("Fetch Error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   const totalReceived = users.reduce((a, b) => a + b.paidAmount, 0);
@@ -98,12 +111,12 @@ const Users = () => {
         {/* STATS CARDS */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-10 print-hidden">
           {[
-            { label: 'Total Students', val: users.length, icon: <UsersIcon />, color: 'blue' },
-            { label: 'Revenue Received', val: `₹${totalReceived.toLocaleString()}`, icon: <Wallet />, color: 'emerald' },
-            { label: 'Outstanding Balance', val: `₹${totalPending.toLocaleString()}`, icon: <Activity />, color: 'amber' }
+            { label: 'Total Students', val: users.length, icon: <UsersIcon />, bg: 'bg-blue-50', text: 'text-blue-600' },
+            { label: 'Revenue Received', val: `₹${totalReceived.toLocaleString()}`, icon: <Wallet />, bg: 'bg-emerald-50', text: 'text-emerald-600' },
+            { label: 'Outstanding Balance', val: `₹${totalPending.toLocaleString()}`, icon: <Activity />, bg: 'bg-amber-50', text: 'text-amber-600' }
           ].map((stat, i) => (
             <div key={i} className="bg-white p-6 rounded-[2.5rem] border border-blue-50 shadow-[0_10px_40px_rgba(0,0,0,0.02)] flex items-center gap-5">
-              <div className={`bg-${stat.color}-50 p-4 rounded-2xl text-${stat.color}-600 shrink-0`}>
+              <div className={`${stat.bg} p-4 rounded-2xl ${stat.text} shrink-0`}>
                 {React.cloneElement(stat.icon, { size: 24 })}
               </div>
               <div>
@@ -145,8 +158,15 @@ const Users = () => {
                       </div>
                     </td>
                     <td className="px-6 py-6">
-                      <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase border border-blue-100">
-                        <Cpu size={12} /> {u.specialization}
+                      <div className="flex flex-wrap gap-2">
+                        {u.courses.map((course, i) => (
+                          <div
+                            key={i}
+                            className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 text-blue-600 rounded-lg text-[10px] font-black uppercase border border-blue-100"
+                          >
+                            <Cpu size={12} /> {course.title}
+                          </div>
+                        ))}
                       </div>
                     </td>
                     <td className="px-6 py-6">
@@ -217,7 +237,7 @@ const Users = () => {
                     <p className="text-[9px] font-black text-slate-400 uppercase mb-2">Specialization</p>
                     <div className="flex items-center gap-2 text-[11px] font-bold text-slate-700">
                       <Cpu size={14} className="text-indigo-400 shrink-0" />
-                      <span className="truncate">{u.specialization}</span>
+                      <span className="truncate">{u.courses[0]?.title || "N/A"}</span>
                     </div>
                   </div>
                   <div className="bg-slate-50/80 p-4 rounded-2xl border border-slate-100/50">

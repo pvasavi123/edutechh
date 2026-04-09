@@ -12,7 +12,7 @@ const trendingCourses = [
     category: "Development",
     students: "1,240 students",
     rating: "4.9",
-    price: "1999",
+    price: "3,999",
     img: "https://images.unsplash.com/photo-1555066931-4365d14bab8c",
   },
   {
@@ -21,7 +21,7 @@ const trendingCourses = [
     category: "Testing",
     students: "890 students",
     rating: "4.7",
-    price: "19,999",
+    price: "3,999",
     img: "https://tse2.mm.bing.net/th/id/OIP.g_b84bPN6qKvVjeNS3cmeQHaEH?pid=Api&P=0&h=180",
   },
   {
@@ -30,7 +30,7 @@ const trendingCourses = [
     category: "UI/UX Design",
     students: "1,050 students",
     rating: "4.8",
-    price: "10000",
+    price: "3,999",
     img: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e",
   },
 ];
@@ -42,7 +42,7 @@ const popularCourses = [
     category: "DevOps",
     students: "2,100 students",
     rating: "4.9",
-    price: "10000",
+    price: "3,999",
     img: "https://tse4.mm.bing.net/th/id/OIP.FRaBEI8XYMZ8X0MjENuclQHaD4?pid=Api&P=0&h=180",
   },
   {
@@ -51,7 +51,7 @@ const popularCourses = [
     category: "Development",
     students: "1,800 students",
     rating: "4.8",
-    price: "15000",
+    price: "3,999",
     img: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4",
   },
   {
@@ -60,7 +60,7 @@ const popularCourses = [
     category: "AI/ML",
     students: "950 students",
     rating: "4.7",
-    price: "20000",
+    price: "3,999",
     img: "https://tse4.mm.bing.net/th/id/OIP.SQfKDBTDMvca6c2hP_GGtwHaEB?pid=Api&P=0&h=180",
   },
 ];
@@ -84,7 +84,7 @@ const Courses = () => {
   };
 
   return (
-    <section className="bg-slate-50 py-20 relative">
+    <section id="courses" className="bg-slate-50 py-20 relative">
       {/* Toast Notification */}
       {notification && (
         <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] animate-bounce">
