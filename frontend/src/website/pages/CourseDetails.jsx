@@ -220,6 +220,39 @@ const courseData = [
       "Basic understanding of Calculus",
       "A machine capable of running ML libs"
     ]
+  },
+  {
+    id: 6,
+    title: "MERN Stack Manual Testing",
+    description: "Master the specific manual testing workflows for modern MERN stack applications. Learn how to validate MongoDB schemas, test Express APIs, verify React frontend states, and ensure Node.js runtime reliability through systematic QA processes.",
+    price: "3,999",
+    rating: "4.8",
+    students: "650 students",
+    language: "English",
+    duration: "2 Months",
+    mode: "Training & Internship",
+    location: "Remote",
+    batchStart: "04 May 2026",
+    category: "Testing",
+    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3",
+    instructor: "QA Specialist Alex",
+    learn: [
+      "Manual verification of MongoDB data integrity",
+      "Manual API testing (Postman) for Express routes",
+      "React Component state and UI validation",
+      "Cross-browser and responsiveness testing"
+    ],
+    content: [
+      "Introduction to MERN QA",
+      "Database Validation Strategies",
+      "API Manual Verification Workflow",
+      "UI/UX & State Integrity Testing"
+    ],
+    requirements: [
+       "Basic understanding of web applications",
+       "Curiosity for finding bugs and edge cases",
+       "Laptop with internet access"
+    ]
   }
 ];
 

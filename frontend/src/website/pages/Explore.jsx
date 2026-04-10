@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import { AuthContext } from "../context/AuthContext";
 import trainingBg from "../assets/training.png";
+import testingImg from "../assets/testing.png";
 
 const allCourses = [
   {
@@ -66,6 +67,16 @@ const allCourses = [
     students: "1,200 students",
     price: "3,999",
     img: "https://images.unsplash.com/photo-1677442136019-21780ecad995",
+  },
+  {
+    id: 6,
+    title: "MERN Stack Manual Testing",
+    category: "Testing",
+    level: "Training & Internship",
+    rating: "4.8",
+    students: "650 students",
+    price: "3,999",
+    img: testingImg,
   },
 ];
 

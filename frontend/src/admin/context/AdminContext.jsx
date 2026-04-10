@@ -14,7 +14,7 @@ export const AdminProvider = ({ children }) => {
   const fetchStudentCount = useCallback(async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://192.168.1.49:8000/api/enrollments/');
+      const response = await fetch('http://localhost:8000/api/enrollments/');
       const result = await response.json();
       const dataArray = Array.isArray(result) ? result : result.data;
       setStudentCount((dataArray || []).length);

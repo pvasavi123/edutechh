@@ -493,7 +493,7 @@ const RegistrationPortal = () => {
   
   const fetchUsers = async () => {
     try {
-      const res = await fetch("http://192.168.1.49:8000/api/students/");
+      const res = await fetch("http://localhost:8000/api/students/");
       const data = await res.json();
       setUsers(data);
     } catch (err) {
@@ -516,7 +516,7 @@ const RegistrationPortal = () => {
     }
 
     try {
-      const response = await fetch("http://192.168.1.49:8000/api/register_student/", {
+      const response = await fetch("http://localhost:8000/api/register_student/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData)

@@ -3,8 +3,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from django.conf import settings
-from App.models import UserRegister, AdminUser, Student, Enrollment
-from App.serializers import UserRegisterSerializer, StudentSerializer, EnrollmentSerializer
+from App.models import UserRegister, AdminUser, Student, Enrollment, LiveClass, RecordedClass, Resource
+from App.serializers import UserRegisterSerializer, StudentSerializer, EnrollmentSerializer, LiveClassSerializer, RecordedClassSerializer, ResourceSerializer
 from google.oauth2 import id_token
 from google.auth.transport import requests
 import os
@@ -335,3 +335,80 @@ def forgot_password(request):
         return Response({"message": "Password updated successfully"}, status=200)
 
     return Response({"error": "Invalid action"}, status=400)
+
+
+@api_view(['GET', 'POST'])
+def create_live_class(request):
+    if request.method == 'GET':
+        live_classes = LiveClass.objects.all().order_by('-id')
+        serializer = LiveClassSerializer(live_classes, many=True)
+        return Response(serializer.data)
+    
+    serializer = LiveClassSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Live class created successfully",
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def delete_live_class(request, pk):
+    try:
+        live_class = LiveClass.objects.get(pk=pk)
+        live_class.delete()
+        return Response({"message": "Live class deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    except LiveClass.DoesNotExist:
+        return Response({"error": "Live class not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET', 'POST'])
+def create_recorded_class(request):
+    if request.method == 'GET':
+        recorded_classes = RecordedClass.objects.all().order_by('-id')
+        serializer = RecordedClassSerializer(recorded_classes, many=True)
+        return Response(serializer.data)
+        
+    serializer = RecordedClassSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Recorded class saved successfully",
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def delete_recorded_class(request, pk):
+    try:
+        recorded_class = RecordedClass.objects.get(pk=pk)
+        recorded_class.delete()
+        return Response({"message": "Recorded class deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    except RecordedClass.DoesNotExist:
+        return Response({"error": "Recorded class not found"}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET', 'POST'])
+def create_resource(request):
+    if request.method == 'GET':
+        resources = Resource.objects.all().order_by('-id')
+        serializer = ResourceSerializer(resources, many=True)
+        return Response(serializer.data)
+        
+    serializer = ResourceSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            "message": "Resource added successfully",
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+def delete_resource(request, pk):
+    try:
+        resource = Resource.objects.get(pk=pk)
+        resource.delete()
+        return Response({"message": "Resource deleted successfully"}, status=status.HTTP_204_NO_CONTENT)
+    except Resource.DoesNotExist:
+        return Response({"error": "Resource not found"}, status=status.HTTP_404_NOT_FOUND)
+

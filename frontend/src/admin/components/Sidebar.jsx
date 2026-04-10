@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { useAdmin } from '../context/AdminContext';
 import {
   LayoutDashboard, Users, UserPlus, Settings,
-  LogOut, Menu, X, Bell, ChevronRight
+  LogOut, Menu, X, Bell, ChevronRight, Video // <-- 1. Imported Video icon here
 } from 'lucide-react';
 
 const Sidebar = () => {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { newCount } = useAdmin();
 
   const menuItems = [
-    { name: 'Dashboard', path: '.', icon: <LayoutDashboard size={22} /> },
-    { name: 'Register User', path: 'registerUser', icon: <UserPlus size={22} /> },
-    { name: 'Users List', path: 'users', icon: <Users size={22} />, badge: newCount > 0 ? newCount : null },
+    { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={22} /> },
+    { name: 'Register User', path: '/admin/registerUser', icon: <UserPlus size={22} /> },
+    { name: 'Users List', path: '/admin/users', icon: <Users size={22} />, badge: 6 },
+    // 2. Added the new Broadcast route to your menu list
+    { name: 'Live Classes', path: '/admin/broadcast', icon: <Video size={22} /> },
   ];
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
@@ -28,7 +28,7 @@ const Sidebar = () => {
             E
           </div>
           <div>
-            <span className="font-black text-slate-800 tracking-tight block leading-none text-sm">TX hub</span>
+            <span className="font-black text-slate-800 tracking-tight block leading-none text-sm">TXhub</span>
             <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-widest">Admin Pro</span>
           </div>
         </div>
@@ -78,10 +78,9 @@ const Sidebar = () => {
             })}
           </div>
 
-          {/* FIXED: Added Link and Close functionality to Mobile Profile section */}
           <div className="mt-6 pt-6 border-t border-slate-100">
             <Link
-              to="settings"
+              to="/admin/settings"
               onClick={() => setIsMenuOpen(false)}
               className="flex items-center justify-between p-2 hover:bg-slate-50 rounded-2xl transition-all"
             >
@@ -103,14 +102,14 @@ const Sidebar = () => {
       </nav>
 
 
-      {/* --- 2. DESKTOP SIDEBAR (Remains exactly the same) --- */}
-      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-100 h-screen sticky top-0 flex flex-col p-6 shadow-[4px_0_24px_rgba(0,0,0,0.02)]">
+      {/* --- 2. DESKTOP SIDEBAR --- */}
+      <aside className="hidden lg:flex w-64 bg-white border-r border-slate-100 h-screen sticky top-0 p-6 shadow-[4px_0_24px_rgba(0,0,0,0.02)] flex-col">
         <div className="flex items-center gap-3 px-2 mb-12">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl flex items-center justify-center text-white font-black italic shadow-lg shadow-blue-200">
             E
           </div>
           <div className="flex flex-col text-left">
-            <span className="text-xl font-black tracking-tight text-slate-800 leading-none">TX hub</span>
+            <span className="text-xl font-black tracking-tight text-slate-800 leading-none">TXhub</span>
             <span className="text-[10px] font-bold text-blue-500 uppercase tracking-[0.2em] mt-1">Admin Pro</span>
           </div>
         </div>
@@ -147,7 +146,7 @@ const Sidebar = () => {
         </nav>
 
         <div className="mt-auto pt-6 space-y-4 border-t border-slate-50 text-left">
-          <Link to="settings" className="group flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-all">
+          <Link to="/admin/settings" className="group flex items-center gap-3 p-3 rounded-2xl hover:bg-slate-50 transition-all">
             <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-black shadow-sm">A</div>
             <div className="flex-1 overflow-hidden">
               <p className="text-sm font-black text-slate-800 truncate">Alex Admin</p>

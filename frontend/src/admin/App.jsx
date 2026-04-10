@@ -3,7 +3,8 @@ import AdminLayout from './layouts/AdminLayout';
 import Dashboard from './pages/Dashboard';
 import Users from './pages/Users';
 import Tenants from './pages/Tenants'; // Create similar to Users
-import Settings from './pages/Settings'; // Create simple div
+import Settings from './pages/Settings'; // Create simple div\
+import ClassManagement from './pages/ClassManagement';
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Route path="users" element={<Users />} />
         <Route path="registerUser" element={<Tenants />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="broadcast" element={<ClassManagement />} />
       </Route>
     </Routes>
   );

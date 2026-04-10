@@ -182,3 +182,45 @@ class Enrollment(models.Model):
         return f"{self.user} - ₹{self.amount_paid}/{self.total_fee} ({self.payment_status})"
 
  
+COURSE_CHOICES = [
+    ('All Courses', 'All Courses'),
+    ('Java Full Stack', 'Java Full Stack'),
+    ('Python Development', 'Python Development'),
+    ('MERN Stack', 'MERN Stack'),
+    ('SQL & Data Analytics', 'SQL & Data Analytics'),
+]
+ 
+BATCH_CHOICES = [
+    ('All Batches', 'All Batches'),
+    ('June Batch', 'June Batch'),
+    ('Sept Batch', 'Sept Batch'),
+    ('Dec Batch', 'Dec Batch'),
+]
+ 
+ 
+class LiveClass(models.Model):
+    topic = models.CharField(max_length=255)
+    link = models.URLField()
+    date = models.DateField(null=True, blank=True)
+    time = models.TimeField(null=True, blank=True)
+    targetCourse = models.CharField(max_length=100, choices=COURSE_CHOICES)
+    batchMonth = models.CharField(max_length=100, choices=BATCH_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+ 
+ 
+class RecordedClass(models.Model):
+    title = models.CharField(max_length=255)
+    videoLink = models.URLField()
+    duration = models.CharField(max_length=50, blank=True)
+    targetCourse = models.CharField(max_length=100, choices=COURSE_CHOICES)
+    batchMonth = models.CharField(max_length=100, choices=BATCH_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)
+ 
+ 
+class Resource(models.Model):
+    title = models.CharField(max_length=255)
+    driveLink = models.URLField()
+    description = models.TextField(blank=True)
+    targetCourse = models.CharField(max_length=100, choices=COURSE_CHOICES)
+    batchMonth = models.CharField(max_length=100, choices=BATCH_CHOICES)
+    created_at = models.DateTimeField(auto_now_add=True)

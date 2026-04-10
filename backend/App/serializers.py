@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from App.models import UserRegister, AdminUser, Student, Enrollment
+from App.models import UserRegister, AdminUser, Student, Enrollment, LiveClass, RecordedClass, Resource
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,4 +30,23 @@ class EnrollmentSerializer(serializers.ModelSerializer):
             'payment_status',
             'total_fee',
         ]
+
+
+
+class LiveClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LiveClass
+        fields = '__all__'
+ 
+ 
+class RecordedClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = RecordedClass
+        fields = '__all__'
+ 
+ 
+class ResourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Resource
+        fields = '__all__'
  
